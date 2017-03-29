@@ -14,6 +14,7 @@ import java.util.List;
 import javax.ejb.EJB;
 import javax.json.Json;
 import javax.json.JsonObject;
+import javax.transaction.Transactional;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Produces;
@@ -25,6 +26,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.hibernate.Hibernate;
 import session.ArticleFacade;
 import session.ClientFacade;
 import session.DomaineFacade;
@@ -106,6 +108,26 @@ public class WebserviceResource {
             List<Domaine> ldomaines = df.Lister_Domaines();
             GenericEntity<List<Domaine>> GEldomaines = new GenericEntity<List<Domaine>>(ldomaines) {};
             response = Response.status(Response.Status.OK).entity(GEldomaines).build();
+        } catch (Exception e) {
+            JsonObject retour = Json.createObjectBuilder().add("message", Utilitaire.getExceptionCause(e)).build();
+            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(retour).build();
+        }
+        return response;
+    }
+    
+    @Transactional
+    @GET
+    @Path("getArticlesParDomaine/{id_domaine}")
+    //@Path("getArticlesParDomaine")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getArticlesDomaine(@PathParam("id_domaine") int id_domaine) throws Exception {
+    //public Response getArticlesDomaine() throws Exception {
+        Response response = null;
+        try {
+            Domaine domaine = df.Lire_Domaine_Id(id_domaine);
+            Hibernate.initialize(domaine.getArticleList());
+            GenericEntity<List<Article>> GElArticle = new GenericEntity<List<Article>>(domaine.getArticleList()) {};
+            response = Response.status(Response.Status.OK).entity(GElArticle).build();
         } catch (Exception e) {
             JsonObject retour = Json.createObjectBuilder().add("message", Utilitaire.getExceptionCause(e)).build();
             response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(retour).build();

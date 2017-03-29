@@ -50,7 +50,7 @@ public class ClientFacade {
     {
         try {
             Query requete = em.createNamedQuery("Client.findByLoginClient");
-            requete.setParameter("login", login);
+            requete.setParameter("loginClient", login);
             return ((Client)requete.getSingleResult());
         } catch (Exception e) {
             throw e;

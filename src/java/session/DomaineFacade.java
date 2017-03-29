@@ -10,6 +10,7 @@ import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 /**
  *
@@ -27,6 +28,14 @@ public class DomaineFacade {
     public List<Domaine> Lister_Domaines() throws Exception {
         try {
             return (em.createNamedQuery("Domaine.findAll").getResultList());
+        } catch (Exception e) {
+            throw e;
+        }
+    }
+    
+    public Domaine Lire_Domaine_Id(int id_domaine) throws Exception {
+        try {
+           return em.find(Domaine.class, id_domaine);
         } catch (Exception e) {
             throw e;
         }

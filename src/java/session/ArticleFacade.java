@@ -43,4 +43,14 @@ public class ArticleFacade {
             throw e;
         }
     }
+    
+    public Article lastArticle() throws Exception {
+        try {
+            Query q = em.createNamedQuery("Article.findLastArticle");
+            //q.getResultList()[q.getFirstResult()];
+            return ((Article)q.getResultList().get(0));
+        } catch (Exception e) {
+            throw e;
+        }
+    }
 }

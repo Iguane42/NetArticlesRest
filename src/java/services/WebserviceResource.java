@@ -95,6 +95,22 @@ public class WebserviceResource {
     }
     
     @GET
+    @Path("getLastArticle")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getLastArticle() throws Exception {
+        Response response = null;
+        try {
+            Article article = af.lastArticle();
+            GenericEntity<Article> GEarticle = new GenericEntity<Article>(article) {};
+            response = Response.status(Response.Status.OK).entity(GEarticle).build();
+        } catch (Exception e) {
+            JsonObject retour = Json.createObjectBuilder().add("message", Utilitaire.getExceptionCause(e)).build();
+            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(retour).build();
+        }
+        return response;
+    }
+    
+    @GET
     @Path("getDomaines")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDomaines() throws Exception {

@@ -7,6 +7,7 @@ package services;
 
 import Utilitaires.Utilitaire;
 import dal.Article;
+import dal.Auteur;
 import dal.Client;
 import dal.Domaine;
 import java.util.List;
@@ -23,6 +24,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.hibernate.Hibernate;
 import session.ArticleFacade;
+import session.AuteurFacade;
 import session.ClientFacade;
 import session.DomaineFacade;
 
@@ -35,6 +37,8 @@ import session.DomaineFacade;
 public class WebserviceResource {
     @EJB
     ClientFacade cf;
+    @EJB
+    AuteurFacade autf;
     @EJB
     ArticleFacade af;
     @EJB
@@ -55,6 +59,22 @@ public class WebserviceResource {
             Client cli = cf.lireLogin(login);
             GenericEntity<Client> GECli = new GenericEntity<Client>(cli) {};
             response = Response.status(Response.Status.OK).entity(GECli).build();
+        } catch (Exception e) {
+            JsonObject retour = Json.createObjectBuilder().add("message", Utilitaire.getExceptionCause(e)).build();
+            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(retour).build();
+        }
+        return response;
+    }
+    
+    @GET
+    @Path("getConnexionAuteur/{login}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response connecterAuteur(@PathParam("login") String login) {
+        Response response = null;
+        try {
+            Auteur aut = autf.lireLogin(login);
+            GenericEntity<Auteur> GEAut = new GenericEntity<Auteur>(aut) {};
+            response = Response.status(Response.Status.OK).entity(GEAut).build();
         } catch (Exception e) {
             JsonObject retour = Json.createObjectBuilder().add("message", Utilitaire.getExceptionCause(e)).build();
             response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(retour).build();

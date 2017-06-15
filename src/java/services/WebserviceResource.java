@@ -6,6 +6,7 @@
 package services;
 
 import Utilitaires.Utilitaire;
+import dal.Achete;
 import dal.Article;
 import dal.Client;
 import dal.Domaine;
@@ -14,14 +15,17 @@ import javax.ejb.EJB;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.transaction.Transactional;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.hibernate.Hibernate;
+import session.AcheteFacade;
 import session.ArticleFacade;
 import session.ClientFacade;
 import session.DomaineFacade;
@@ -39,6 +43,8 @@ public class WebserviceResource {
     ArticleFacade af;
     @EJB
     DomaineFacade df;
+    @EJB
+    AcheteFacade acf;
 
     /**
      * Creates a new instance of WebserviceResource
@@ -54,6 +60,24 @@ public class WebserviceResource {
         try {
             Client cli = cf.lireLogin(login);
             GenericEntity<Client> GECli = new GenericEntity<Client>(cli) {};
+            response = Response.status(Response.Status.OK).entity(GECli).build();
+        } catch (Exception e) {
+            JsonObject retour = Json.createObjectBuilder().add("message", Utilitaire.getExceptionCause(e)).build();
+            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(retour).build();
+        }
+        return response;
+    }
+    
+    @Transactional
+    @GET
+    @Path("getAchatsClient/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAchatsClient(@PathParam("id") int id) {
+        Response response = null;
+        try {
+            Client cli = cf.Lire_Client_Id(id);
+            Hibernate.initialize(cli.getAcheteList());
+            GenericEntity<List<Achete>> GECli = new GenericEntity<List<Achete>>(cli.getAcheteList()) {};
             response = Response.status(Response.Status.OK).entity(GECli).build();
         } catch (Exception e) {
             JsonObject retour = Json.createObjectBuilder().add("message", Utilitaire.getExceptionCause(e)).build();
@@ -141,6 +165,29 @@ public class WebserviceResource {
             response = Response.status(Response.Status.OK).entity(GElArticle).build();
         } catch (Exception e) {
             JsonObject retour = Json.createObjectBuilder().add("message", Utilitaire.getExceptionCause(e)).build();
+            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(retour).build();
+        }
+        return response;
+    }
+    
+    @POST
+    @Path("acheteArticle")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response acheteArticle(Achete achete) throws Exception {
+    //public Response getArticlesDomaine() throws Exception {
+        Response response = null;
+        try {
+            //Domaine domaine = df.Lire_Domaine_Id(id_domaine);
+            //Hibernate.initialize(domaine.getArticleList());
+            //GenericEntity<List<Article>> GElArticle = new GenericEntity<List<Article>>(domaine.getArticleList()) {};
+            acf.Ajouter(achete);
+            JsonObject GEAchat = Json.createObjectBuilder().add("Succes", true).build();
+            response = Response.status(Response.Status.OK).entity(GEAchat).build();
+        } catch (Exception e) {
+            String erreur = Utilitaire.getExceptionCause(e);
+            if(erreur.contains("PRIMARY"))
+                erreur = "Vous avez déjà acheté un des articles du panier.";            
+            JsonObject retour = Json.createObjectBuilder().add("message", erreur).build();
             response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(retour).build();
         }
         return response;

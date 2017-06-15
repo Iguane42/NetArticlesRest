@@ -32,7 +32,10 @@ public class ClientFacade {
     
     public Client Lire_Client_Id(int id_article) throws Exception {
         try {
-            return em.find(Client.class, id_article);
+            
+            Client cli = em.find(Client.class, id_article);
+            cli.getAcheteList();
+            return cli;
         } catch (Exception e) {
             throw e;
         }

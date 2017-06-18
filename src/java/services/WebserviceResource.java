@@ -9,6 +9,7 @@ import Utilitaires.Utilitaire;
 import dal.Achete;
 import dal.Article;
 import dal.Auteur;
+import dal.Categorie;
 import dal.Client;
 import dal.Domaine;
 import dal.Redige;
@@ -31,6 +32,7 @@ import org.hibernate.Hibernate;
 import session.AcheteFacade;
 import session.ArticleFacade;
 import session.AuteurFacade;
+import session.CategorieFacade;
 import session.ClientFacade;
 import session.DomaineFacade;
 import session.RedigeFacade;
@@ -54,6 +56,8 @@ public class WebserviceResource {
     AcheteFacade acf;
     @EJB
     RedigeFacade rf;
+    @EJB
+    CategorieFacade catf;
 
     /**
      * Creates a new instance of WebserviceResource
@@ -68,6 +72,23 @@ public class WebserviceResource {
         Response response = null;
         try {
             Client cli = cf.lireLogin(login);
+            GenericEntity<Client> GECli = new GenericEntity<Client>(cli) {};
+            response = Response.status(Response.Status.OK).entity(GECli).build();
+        } catch (Exception e) {
+            JsonObject retour = Json.createObjectBuilder().add("message", Utilitaire.getExceptionCause(e)).build();
+            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(retour).build();
+        }
+        return response;
+    }
+    
+    @GET
+    @Path("getClient/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response getClient(@PathParam("id") int id) {
+        Response response = null;
+        try {
+            Client cli = cf.Lire_Client_Id(id);
+            
             GenericEntity<Client> GECli = new GenericEntity<Client>(cli) {};
             response = Response.status(Response.Status.OK).entity(GECli).build();
         } catch (Exception e) {
@@ -120,6 +141,22 @@ public class WebserviceResource {
             Article article = af.Lire_Article_Id(id_article);
             GenericEntity<Article> GEArticle = new GenericEntity<Article>(article) {};
             response = Response.status(Response.Status.OK).entity(GEArticle).build();
+        } catch (Exception e) {
+            JsonObject retour = Json.createObjectBuilder().add("message", Utilitaire.getExceptionCause(e)).build();
+            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(retour).build();
+        }
+        return response;
+    }
+    
+    @GET
+    @Path("getCategorie/{id_categorie}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response getCategorieId(@PathParam("id_categorie") int idCategorie) throws Exception {
+        Response response = null;
+        try {
+            Categorie categorie = catf.Lire_Categorie_Id(idCategorie);
+            GenericEntity<Categorie> GECategorie = new GenericEntity<Categorie>(categorie) {};
+            response = Response.status(Response.Status.OK).entity(GECategorie).build();
         } catch (Exception e) {
             JsonObject retour = Json.createObjectBuilder().add("message", Utilitaire.getExceptionCause(e)).build();
             response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(retour).build();
@@ -219,6 +256,22 @@ public class WebserviceResource {
         return response;
     }
     
+    @GET
+    @Path("getCategories")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response getCategories() throws Exception {
+        Response response = null;
+        try {
+            List<Categorie> lcategories = catf.Lister_Categories();
+            GenericEntity<List<Categorie>> GElcategorie = new GenericEntity<List<Categorie>>(lcategories) {};
+            response = Response.status(Response.Status.OK).entity(GElcategorie).build();
+        } catch (Exception e) {
+            JsonObject retour = Json.createObjectBuilder().add("message", Utilitaire.getExceptionCause(e)).build();
+            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(retour).build();
+        }
+        return response;
+    }
+    
     @POST
     @Path("acheteArticle")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -241,5 +294,32 @@ public class WebserviceResource {
         }
         return response;
     }
+    
+    @POST
+    @Path("editerCompte")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response editerCompte(Client client) throws Exception {
+    //public Response getArticlesDomaine() throws Exception {
+        Response response = null;
+        try {
+            if (client.getIdClient() == 0) {
+                cf.Ajouter(client);
+            } else {
+                cf.Editer(client);
+            }
+            
+            JsonObject GEAchat = Json.createObjectBuilder().add("Succes", true).build();
+            response = Response.status(Response.Status.OK).entity(GEAchat).build();
+        } catch (Exception e) {
+            String erreur = Utilitaire.getExceptionCause(e);   
+            JsonObject retour = Json.createObjectBuilder().add("message", erreur).build();
+            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(retour).build();
+        }
+        return response;
+    }
+    
+    
+    
+    
     
 }

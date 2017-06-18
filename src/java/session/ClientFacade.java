@@ -5,6 +5,7 @@
  */
 package session;
 
+import dal.Achete;
 import dal.Client;
 import java.util.List;
 import javax.ejb.LocalBean;
@@ -58,5 +59,25 @@ public class ClientFacade {
         } catch (Exception e) {
             throw e;
         }
+    }
+    
+    public void Ajouter(Client client)
+    {
+        try {
+            em.persist(client);
+        } catch (Exception e) {
+            throw e;
+        }
+        
+    }
+    
+    public void Editer(Client client)
+    {
+        try {
+            em.merge(client);
+        } catch (Exception e) {
+            throw e;
+        }
+        
     }
 }

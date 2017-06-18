@@ -5,7 +5,6 @@
  */
 package session;
 
-import dal.Article;
 import dal.Redige;
 import java.util.List;
 import javax.ejb.Stateless;

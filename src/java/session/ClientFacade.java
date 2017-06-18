@@ -5,7 +5,6 @@
  */
 package session;
 
-import dal.Achete;
 import dal.Client;
 import java.util.List;
 import javax.ejb.LocalBean;

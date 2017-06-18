@@ -6,7 +6,6 @@
 package session;
 
 import dal.Article;
-import dal.Domaine;
 import java.util.List;
 import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
